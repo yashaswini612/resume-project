@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Interview Question Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
+    <h1 class="text-2xl font-bold mb-6 text-center">
+      Interview Question Generator
+    </h1>
+
+    <input id="role" class="w-full p-2 border rounded mb-3"
+      placeholder="Role (e.g. Software Engineer)" />
+
+    <input id="skills" class="w-full p-2 border rounded mb-3"
+      placeholder="Skills (e.g. Python, Data Structures)" />
+
+    <textarea id="resume" class="w-full p-2 border rounded mb-3"
+      placeholder="Short resume"></textarea>
+
+    <input id="num_questions" type="number" value="3"
+      class="w-full p-2 border rounded mb-4" />
+
+    <button onclick="generateQuestions()"
+      class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+      Generate Questions
+    </button>
+
+    <p id="status" class="mt-4 text-sm text-gray-600"></p>
+
+    <ul id="output" class="mt-4 list-disc pl-5 space-y-2 text-gray-800"></ul>
+  </div>
+
+  <script>
+    async function generateQuestions() {
+      const status = document.getElementById("status");
+      const output = document.getElementById("output");
+
+      status.textContent = "Generating questions...";
+      output.innerHTML = "";
+
+      const data = {
+        role: document.getElementById("role").value,
+        skills: document.getElementById("skills").value,
+        resume: document.getElementById("resume").value,
+        num_questions: Number(document.getElementById("num_questions").value)
+      };
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error("Backend error");
+        }
+
+        const result = await response.json();
+        status.textContent = "Questions generated successfully";
+
+        result.questions.forEach(q => {
+          const li = document.createElement("li");
+          li.textContent = q;
+          output.appendChild(li);
+        });
+
+      } catch (error) {
+        status.textContent = "❌ Error connecting to backend";
+      }
+    }
+  </script>
+
+</body>
+</html>
